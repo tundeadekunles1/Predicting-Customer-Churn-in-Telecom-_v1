@@ -4,6 +4,7 @@ End‑to‑end DSML group project to predict customer churn for a telecom compan
 
 ## 1. Project Overview
 
+
 Customer churn (customer attrition) is a key business problem for telecoms, where even a small increase in churn can significantly impact recurring revenue. 
 This project builds machine learning models to identify customers at high risk of churning and highlights the drivers of churn so retention teams can take action. 
 
