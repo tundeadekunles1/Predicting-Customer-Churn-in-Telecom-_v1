@@ -134,6 +134,10 @@ model_choice = st.sidebar.selectbox(
     "Model",
     options=[
         (
+            "Logistic Regression balanced",
+            str(root / "data" / "models" / "logistic_regression_balanced.pkl"),
+        ),
+        (
             "Logistic Regression",
             str(root / "data" / "models" / "logistic_regression.pkl"),
         ),
