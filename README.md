@@ -202,6 +202,3 @@ Fix: app uses fixed label `Churn_Yes` and hides metrics if missing.
 - Monitoring: drift checks on feature distributions and score distributions post-deployment
 
 ---
-
-## Author
-Built by **Bilikisu** (Senior Data Scientist — Marketing & Customer Analytics).
