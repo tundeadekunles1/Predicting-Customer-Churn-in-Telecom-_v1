@@ -6,12 +6,12 @@ from typing import Optional
 import pandas as pd
 
 
-def load_raw_telco(path: Path) -> pd.DataFrame:
+def load_data(path: Path) -> pd.DataFrame:
     """Load the raw Telco churn CSV."""
     return pd.read_csv(path)
 
 
-def clean_telco(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Minimal, safe cleaning for the IBM Telco churn dataset style:
     - Strip whitespace in object columns
