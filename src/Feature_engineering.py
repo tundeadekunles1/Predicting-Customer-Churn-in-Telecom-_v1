@@ -28,9 +28,8 @@ _CATEGORICALS = [
 ]
 
 
-# -----------------------------
+
 # Train-fitted thresholds
-# -----------------------------
 @dataclass
 class FeatureThresholds:
     monthlycharges_q75: float
@@ -66,31 +65,28 @@ def load_feature_thresholds(path: str) -> FeatureThresholds:
         return FeatureThresholds.from_dict(json.load(f))
 
 
-# -----------------------------
 # Feature engineering
-# -----------------------------
 def _add_safe_engineered_features(
     df: pd.DataFrame, thresholds: Optional[FeatureThresholds] = None
 ) -> pd.DataFrame:
     out = df.copy()
 
-    # 1) TotalCharges cleanup (common Telco issue)
+    # TotalCharges cleanup (common Telco issue)
     if "TotalCharges" in out.columns:
         out["TotalCharges"] = pd.to_numeric(out["TotalCharges"], errors="coerce")
         out["TotalCharges"] = out["TotalCharges"].fillna(out["TotalCharges"].median())
 
-    # 2) charges_ratio (robust to tenure=0)
+    # charges_ratio (robust to tenure=0)
     if "TotalCharges" in out.columns and "tenure" in out.columns:
         denom = out["tenure"].fillna(0).astype(float) + 1.0
         out["charges_ratio"] = out["TotalCharges"].fillna(0).astype(float) / denom
     else:
         out["charges_ratio"] = 0.0
 
-    # 3) Train-fitted MonthlyCharges Q75 (preferred)
+    # Train-fitted MonthlyCharges Q75
     if thresholds is not None:
         q75_monthly = float(thresholds.monthlycharges_q75)
     else:
-        # fallback (OK for exploration; not recommended for final eval/production)
         q75_monthly = (
             float(
                 pd.to_numeric(out.get("MonthlyCharges", 0), errors="coerce")
@@ -101,7 +97,7 @@ def _add_safe_engineered_features(
             else 0.0
         )
 
-    # 4) HighSpender using q75_monthly
+    # HighSpender using q75_monthly
     if "MonthlyCharges" in out.columns:
         monthly = (
             pd.to_numeric(out["MonthlyCharges"], errors="coerce")
@@ -112,7 +108,7 @@ def _add_safe_engineered_features(
     else:
         out["HighSpender"] = 0
 
-    # 5) HighChurnRisk using q75_monthly (no df.quantile inside row loop)
+    # HighChurnRisk using q75_monthly
     def _flag_row(row) -> int:
         tenure = float(row.get("tenure", 0) or 0)
         contract = str(row.get("Contract", "")).lower()
@@ -169,16 +165,13 @@ def build_processed_frame(
         [base, out[["charges_ratio", "HighSpender", "HighChurnRisk"]], dummies], axis=1
     )
 
-    # Align to expected schema
     feat = feat.reindex(columns=FEATURE_COLUMNS, fill_value=0)
 
-    # Guardrail: no NaNs
     if feat.isna().any().any():
         na_cols = feat.isna().sum().sort_values(ascending=False)
         na_cols = na_cols[na_cols > 0]
         raise ValueError(f"NaNs remain in feature matrix:\\n{na_cols}")
 
-    # Build final
     if ID_COL in out.columns:
         ids = out[ID_COL].astype(str)
     else:

@@ -65,17 +65,33 @@ def train_logistic_regression(
     return pipeline
 
 
-def train_random_forest(X_train: pd.DataFrame, y_train: np.ndarray, class_weight=None) -> RandomForestClassifier:
+def train_random_forest(
+    X_train: pd.DataFrame, y_train: np.ndarray, class_weight=None
+) -> RandomForestClassifier:
     model = RandomForestClassifier(
-        n_estimators=600,
+        n_estimators=1200,
         random_state=42,
         n_jobs=-1,
-        class_weight=class_weight,
-        min_samples_leaf=2,
+        class_weight="balanced_subsample", 
+        max_depth=10,  
+        min_samples_leaf=50,  
+        min_samples_split=100,  
+        max_features=0.3, 
     )
     model.fit(X_train, y_train)
     return model
 
+def train_random_forest_tuned(X_train, y_train, class_weight):
+    return RandomForestClassifier(
+        n_estimators=1200,
+        random_state=42,
+        n_jobs=-1,
+        class_weight=class_weight,  
+        max_depth=10,
+        min_samples_leaf=50,
+        min_samples_split=100,
+        max_features=0.3,
+    ).fit(X_train, y_train)
 
 def train_hgb(X_train: pd.DataFrame, y_train: np.ndarray) -> HistGradientBoostingClassifier:
     model = HistGradientBoostingClassifier(random_state=42, max_depth=6, learning_rate=0.08)

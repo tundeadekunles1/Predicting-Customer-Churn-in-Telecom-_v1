@@ -19,7 +19,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     out = df.copy()
 
-    # Trim string columns
+    # Trim all string columns
     obj_cols = out.select_dtypes(include=["object"]).columns
     for c in obj_cols:
         out[c] = out[c].astype(str).str.strip()
